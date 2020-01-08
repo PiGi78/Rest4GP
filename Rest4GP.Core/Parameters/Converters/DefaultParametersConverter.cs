@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Web;
 using System.Collections.Generic;
 using System.Text.Json;
@@ -28,35 +29,38 @@ namespace Rest4GP.Core.Parameters.Converters
 
             var result = new RestParameters();
             var query = HttpUtility.ParseQueryString(queryString);
-            foreach (var key in query.AllKeys)
+            if (query?.AllKeys?.Any() == true)
             {
-                switch (key.ToUpperInvariant())
+                foreach (var key in query.AllKeys)
                 {
-                    case "TAKE":
-                        if (int.TryParse(query[key], out int take)) result.Take = take;
-                        break;
-                    case "SKIP":
-                        if (int.TryParse(query[key], out int skip)) result.Skip = skip;
-                        break;
-                    case "WITHCOUNT":
-                        if (bool.TryParse(query[key], out bool count)) result.WithCount = count;
-                        break;
-                    case "SORT":
-                        var jsonSort = query[key];
-                        if (!string.IsNullOrEmpty(jsonSort))
-                        {
-                            result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort);
-                        }
-                        break;
-                    case "FILTER":
-                        var filterValue = query[key];
-                        result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue);
-                        break;
-                    case "SMARTFILTER":
-                        result.SmartFilter = new RestSmartFilter(query[key]);
-                        break;
-                    default:
-                        break;
+                    switch (key.ToUpperInvariant())
+                    {
+                        case "TAKE":
+                            if (int.TryParse(query[key], out int take)) result.Take = take;
+                            break;
+                        case "SKIP":
+                            if (int.TryParse(query[key], out int skip)) result.Skip = skip;
+                            break;
+                        case "WITHCOUNT":
+                            if (bool.TryParse(query[key], out bool count)) result.WithCount = count;
+                            break;
+                        case "SORT":
+                            var jsonSort = query[key];
+                            if (!string.IsNullOrEmpty(jsonSort))
+                            {
+                                result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort);
+                            }
+                            break;
+                        case "FILTER":
+                            var filterValue = query[key];
+                            result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue);
+                            break;
+                        case "SMARTFILTER":
+                            result.SmartFilter = new RestSmartFilter(query[key]);
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
 
