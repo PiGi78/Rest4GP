@@ -178,7 +178,10 @@ namespace Rest4GP.SqlServer
         protected string ApplySort(string sql, RestParameters parameters)
         {
             if (string.IsNullOrEmpty(sql)) throw new ArgumentNullException(nameof(sql));
-            if ((parameters?.Sort?.Fields?.Any()).GetValueOrDefault(false) == false) return sql;
+            if ((parameters?.Sort?.Fields?.Any()).GetValueOrDefault(false) == false) 
+            {
+                return $"{sql} ORDER BY 1";
+            }
 
             var result = new StringBuilder();
             // Order by
@@ -191,7 +194,7 @@ namespace Rest4GP.SqlServer
                     result.Append(",");
                 }
                 isFirst = false;
-                var direction = clause.Direction == SortDirections.Ascending ? "asc" : "desc";
+                var direction = clause.Direction == SortDirections.Ascending ? "ASC" : "DESC";
                 result.Append($" [{clause.Field}] {direction}");
             }
             // if no fields, order by first column

@@ -32,27 +32,27 @@ namespace Rest4GP.Core.Parameters.Converters
             {
                 switch (key.ToUpperInvariant())
                 {
-                    case "$TAKE":
+                    case "TAKE":
                         if (int.TryParse(query[key], out int take)) result.Take = take;
                         break;
-                    case "$SKIP":
+                    case "SKIP":
                         if (int.TryParse(query[key], out int skip)) result.Skip = skip;
                         break;
-                    case "$WITHCOUNT":
+                    case "WITHCOUNT":
                         if (bool.TryParse(query[key], out bool count)) result.WithCount = count;
                         break;
-                    case "$SORT":
+                    case "SORT":
                         var jsonSort = query[key];
                         if (!string.IsNullOrEmpty(jsonSort))
                         {
                             result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort);
                         }
                         break;
-                    case "$FILTER":
+                    case "FILTER":
                         var filterValue = query[key];
                         result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue);
                         break;
-                    case "$SMARTFILTER":
+                    case "SMARTFILTER":
                         result.SmartFilter = new RestSmartFilter(query[key]);
                         break;
                     default:
