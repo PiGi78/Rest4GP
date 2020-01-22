@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -56,6 +57,29 @@ namespace Rest4GP.Core.Data
 
 
         /// <summary>
+        /// Gets the options for the Json serialization
+        /// </summary>
+        /// <returns>
+        /// Options for the Json serialization
+        /// </returns>
+        protected JsonSerializerOptions GetJsonSerializerOptions() 
+        {
+            var result = new JsonSerializerOptions 
+            {
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            // Check for enums
+            if (Options.EnumSerializationRule == EnumSerializationRules.String)
+            {
+                result.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Checks if the handler can manage the request
         /// </summary>
         /// <param name="request">Request to check</param>
@@ -98,7 +122,7 @@ namespace Rest4GP.Core.Data
                     });
                     return new RestResponse {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = JsonSerializer.Serialize(metatada)
+                        Content = JsonSerializer.Serialize(metatada, GetJsonSerializerOptions())
                     };
                 }
                 return null;
@@ -109,7 +133,7 @@ namespace Rest4GP.Core.Data
             {
                 return new RestResponse {
                     StatusCode = (int)HttpStatusCode.OK,
-                    Content = JsonSerializer.Serialize(manager.EntityMetadata)
+                    Content = JsonSerializer.Serialize(manager.EntityMetadata, GetJsonSerializerOptions())
                 };
             }
 
@@ -122,7 +146,7 @@ namespace Rest4GP.Core.Data
                     var data = await manager.FetchEntitiesAsync(restParams);
                     result = new RestResponse {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = JsonSerializer.Serialize(data)
+                        Content = JsonSerializer.Serialize(data, GetJsonSerializerOptions())
                     };
                     break;
                 default:
@@ -236,7 +260,7 @@ namespace Rest4GP.Core.Data
             // JSON with data
             return new RestResponse {
                         StatusCode = (int)HttpStatusCode.OK,
-                        Content = $"{{ \"data\": {JsonSerializer.Serialize(result.Entities)}, \"count\": {result.TotalCount} }}"
+                        Content = $"{{ \"data\": {JsonSerializer.Serialize(result.Entities, GetJsonSerializerOptions())}, \"count\": {result.TotalCount} }}"
                     };
 
         }

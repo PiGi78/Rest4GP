@@ -36,18 +36,22 @@ namespace Rest4GP.Core.Parameters.Converters
                     switch (key.ToUpperInvariant())
                     {
                         case "TAKE":
-                            if (int.TryParse(query[key], out int take)) result.Take = take;
+                            var takeValue = query[key];
+                            if (!string.IsNullOrEmpty(takeValue) && int.TryParse(query[key], out int take)) result.Take = take;
                             break;
                         case "SKIP":
-                            if (int.TryParse(query[key], out int skip)) result.Skip = skip;
+                            var skipValue = query[key];
+                            if (!string.IsNullOrEmpty(skipValue) && int.TryParse(skipValue, out int skip)) result.Skip = skip;
                             break;
                         case "WITHCOUNT":
-                            if (bool.TryParse(query[key], out bool count)) result.WithCount = count;
+                            var withCountValue = query[key];
+                            if (!string.IsNullOrEmpty(withCountValue) && bool.TryParse(query[key], out bool count)) result.WithCount = count;
                             break;
                         case "SORT":
                             var jsonSort = query[key];
                             if (!string.IsNullOrEmpty(jsonSort))
                             {
+                                result.Sort = new RestSort();
                                 result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort);
                             }
                             break;

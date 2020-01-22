@@ -21,6 +21,28 @@ namespace Rest4GP.Core.Data
         /// Converters for parameters
         /// </summary>
         public IParametersConverter ParametersConverter { get; set; } = new DefaultParametersConverter();
+
+
+        /// <summary>
+        /// Rule for enum serialization
+        /// </summary>
+        public EnumSerializationRules EnumSerializationRule { get; set; } = EnumSerializationRules.String;
         
+    }
+
+
+    /// <summary>
+    /// Rules for enum serialization
+    /// </summary>
+    public enum EnumSerializationRules
+    {
+        /// <summary>
+        /// Serialize enum with the string value     
+        /// </summary>
+        String,
+        /// <summary>
+        /// Serialize enum with the numeric value
+        /// </summary>
+        Numeric
     }
 }
