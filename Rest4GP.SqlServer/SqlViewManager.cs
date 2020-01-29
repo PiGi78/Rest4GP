@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Rest4GP.Core.Data;
 using Rest4GP.Core.Data.Entities;
 using Rest4GP.Core.Parameters;
+using System.ComponentModel.DataAnnotations;
 
 namespace Rest4GP.SqlServer
 {
@@ -476,5 +477,41 @@ namespace Rest4GP.SqlServer
         #endregion
 
 
+
+        #region Not implemented method
+
+        /// <summary>
+        /// Insert a new entity in the database
+        /// </summary>
+        /// <param name="fields">List of the properties of the entity</param>
+        /// <returns>Properties of the key of the inserted item</returns>
+        public virtual Task<IDictionary<string, object>> InsertEntityAsync(IDictionary<string, object> fields)
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// Update an entity in the database
+        /// </summary>
+        /// <param name="fields">List of the properties of the entity</param>
+        /// <returns>Result of the update</returns>
+        public virtual Task<IList<ValidationResult>> UpdateEntityAsync(IDictionary<string, object> fields)
+        {
+            return null;
+        }
+
+
+        /// <summary>
+        /// Delete an entity from the database
+        /// </summary>
+        /// <param name="fields">List of the properties of the key of the entity</param>
+        /// <returns>Result of the delete</returns>
+        public virtual Task<IList<ValidationResult>> DeleteEntityAsync(IDictionary<string, object> fields)
+        {
+            return null;
+        }
+
+        #endregion
     }
 }

@@ -1,3 +1,4 @@
+using System.Reflection.PortableExecutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,6 +7,8 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Rest4GP.Core.Data.Entities;
+using System.Collections;
 
 namespace Rest4GP.Core.Data
 {
@@ -141,17 +144,111 @@ namespace Rest4GP.Core.Data
             RestResponse result = null;
             switch (request.Method)
             {
+                // Get -> Read
                 case RestMethods.Get:
                     var restParams = Options.ParametersConverter.ToRestParameters(request.OriginalRequest.QueryString.Value);
-                    var data = await manager.FetchEntitiesAsync(restParams);
-                    result = new RestResponse {
-                        StatusCode = (int)HttpStatusCode.OK,
-                        Content = JsonSerializer.Serialize(data, GetJsonSerializerOptions())
-                    };
+                    if (restParams != null)
+                    {
+                        var data = await manager.FetchEntitiesAsync(restParams);
+                        if (data != null)
+                        {
+                            result = new RestResponse {
+                                StatusCode = (int)HttpStatusCode.OK,
+                                Content = JsonSerializer.Serialize(data, GetJsonSerializerOptions())
+                            };
+                        }
+                    }
+                    break;
+                // Post -> Insert
+                case RestMethods.Post:
+                    var insProperties = await ExtractPropertiesAsync(request, manager.EntityMetadata);
+                    if (insProperties != null &&
+                        insProperties.Keys.Count > 0)
+                    {
+                        var insResult = await manager.InsertEntityAsync(insProperties);
+                        if (insResult != null)
+                        {
+                            result = new RestResponse {
+                                StatusCode = (int)HttpStatusCode.OK,
+                                Content = JsonSerializer.Serialize(insResult, GetJsonSerializerOptions())
+                            };
+                        }
+                    }
+                    break;
+                // Put/Patch -> Update
+                case RestMethods.Patch:
+                case RestMethods.Put:
+                    var updProperties = await ExtractPropertiesAsync(request, manager.EntityMetadata);
+                    if (updProperties != null &&
+                        updProperties.Keys.Count > 0)
+                    {
+                        var updResult = await manager.UpdateEntityAsync(updProperties);
+                        if (updResult != null)
+                        {
+                            if (updResult.Count == 0)
+                            {
+                                result = new RestResponse {
+                                    StatusCode = (int)HttpStatusCode.OK
+                                };
+                            }
+                            else
+                            {
+                                result = new RestResponse {
+                                    StatusCode = (int)HttpStatusCode.BadRequest,
+                                    Content = JsonSerializer.Serialize(updResult, GetJsonSerializerOptions())
+                                };
+                            }
+                        }
+                    }
+                    break;
+                // Delete -> Delete
+                case RestMethods.Delete:
+                    var delProperties = await ExtractPropertiesAsync(request, manager.EntityMetadata);
+                    if (delProperties != null &&
+                        delProperties.Keys.Count > 0)
+                    {
+                        var delResult = await manager.DeleteEntityAsync(delProperties);
+                        if (delResult != null)
+                        {
+                            if (delResult.Count == 0)
+                            {
+                                result = new RestResponse {
+                                    StatusCode = (int)HttpStatusCode.OK
+                                };
+                            }
+                            else
+                            {
+                                result = new RestResponse {
+                                    StatusCode = (int)HttpStatusCode.BadRequest,
+                                    Content = JsonSerializer.Serialize(delResult, GetJsonSerializerOptions())
+                                };
+                            }
+                        }
+                    }
                     break;
                 default:
                     break;
             }
+
+            return result;
+        }
+
+
+        /// <summary>
+        /// Extract the properties of the entity from the request
+        /// </summary>
+        /// <param name="request">Request from which extract properties</param>
+        /// <param name="metadata">Entity metadata</param>
+        /// <returns>Properties keys and values</returns>
+        private async Task<IDictionary<string, object>> ExtractPropertiesAsync(RestRequest request, EntityMetadata metadata)
+        {
+            if (request == null) throw new ArgumentNullException(nameof(request));
+            if (metadata == null) throw new ArgumentNullException(nameof(metadata));
+
+
+            // Convert content to dictionary
+            var content = await request.GetContentAsync();
+            var result = JsonSerializer.Deserialize<IDictionary<string, object>>(content, GetJsonSerializerOptions());
 
             return result;
         }
