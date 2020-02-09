@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using System.Reflection.PortableExecutable;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Rest4GP.Core.Data.Entities;
 using System.Collections;
+using Rest4GP.Core.Parameters;
 
 namespace Rest4GP.Core.Data
 {
@@ -147,6 +149,7 @@ namespace Rest4GP.Core.Data
                 // Get -> Read
                 case RestMethods.Get:
                     var restParams = Options.ParametersConverter.ToRestParameters(request.OriginalRequest.QueryString.Value);
+                    if (restParams == null) restParams = new RestParameters();
                     if (restParams != null)
                     {
                         var data = await manager.FetchEntitiesAsync(restParams);
@@ -195,7 +198,7 @@ namespace Rest4GP.Core.Data
                             {
                                 result = new RestResponse {
                                     StatusCode = (int)HttpStatusCode.BadRequest,
-                                    Content = JsonSerializer.Serialize(updResult, GetJsonSerializerOptions())
+                                    Content = JsonSerializer.Serialize(updResult.ToList(), GetJsonSerializerOptions())
                                 };
                             }
                         }
@@ -220,7 +223,7 @@ namespace Rest4GP.Core.Data
                             {
                                 result = new RestResponse {
                                     StatusCode = (int)HttpStatusCode.BadRequest,
-                                    Content = JsonSerializer.Serialize(delResult, GetJsonSerializerOptions())
+                                    Content = JsonSerializer.Serialize(delResult.ToList(), GetJsonSerializerOptions())
                                 };
                             }
                         }
@@ -248,7 +251,48 @@ namespace Rest4GP.Core.Data
 
             // Convert content to dictionary
             var content = await request.GetContentAsync();
-            var result = JsonSerializer.Deserialize<IDictionary<string, object>>(content, GetJsonSerializerOptions());
+            var doc = JsonDocument.Parse(content);
+            var root = doc.RootElement;
+            
+            var result = new Dictionary<string, object>();
+            foreach (var property in metadata.Fields)
+            {
+                if (root.TryGetProperty(property.Name, out JsonElement element))
+                {
+                    switch (property.Type)
+                    {
+                        case FieldDataTypes.String:
+                            var strValue = element.GetString();
+                            result.Add(property.Name, strValue);
+                            break;
+                        case FieldDataTypes.Date:
+                        case FieldDataTypes.DateTime:
+                        case FieldDataTypes.Time:
+                            if (element.TryGetDateTime(out DateTime dateValue))
+                            {
+                                result.Add(property.Name, dateValue);
+                            }
+                            break;
+                        case FieldDataTypes.Numeric:
+                            if (element.TryGetDecimal(out decimal decValue))
+                            {
+                                result.Add(property.Name, decValue);
+                            }
+                            break;
+                        default:
+                            continue;
+                    }
+                }
+                // for PUT verb, all missing value are set to null (replacing all values)
+                // for PATCH verb, missing value will mantain the current DB value
+                else
+                {
+                    if (request.Method == RestMethods.Put)
+                    {
+                        result.Add(property.Name, null);
+                    }
+                }
+            }
 
             return result;
         }

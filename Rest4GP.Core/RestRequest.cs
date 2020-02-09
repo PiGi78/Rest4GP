@@ -70,14 +70,17 @@ namespace Rest4GP.Core
             
             // Read content
             _content = string.Empty;
-            int bufferSize = OriginalRequest.ContentLength.HasValue ? (int)OriginalRequest.ContentLength.Value : 1024;
-            using (var reader = new StreamReader(OriginalRequest.Body, Encoding.UTF8, false, bufferSize, leaveOpen: true))
+            if (OriginalRequest.ContentLength > 0)
             {
-                _content = await reader.ReadToEndAsync();
-            }
+                int bufferSize = (int)OriginalRequest.ContentLength.Value;
+                using (var reader = new StreamReader(OriginalRequest.Body, Encoding.UTF8, false, bufferSize, leaveOpen: true))
+                {
+                    _content = await reader.ReadToEndAsync();
+                }
 
-            // Set the position to the beginning (for other that can read content)
-            OriginalRequest.Body.Position = 0;
+                // Set the position to the beginning (for other that can read content)
+                OriginalRequest.Body.Position = 0;
+            }
 
             // Return the content
             return _content;

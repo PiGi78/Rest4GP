@@ -166,8 +166,8 @@ namespace Rest4GP.SqlServer
                                      WHEN 'Pk' THEN CAST(1 as bit)
                                      ELSE CAST(0 as bit)
                                   END AS [IsPrimaryKey]
-                                , CASE co.is_computed
-                                     WHEN 1 THEN CAST(1 as bit)
+                                , CASE
+                                     WHEN (co.is_computed = 1 or ic.is_identity = 1) THEN CAST(1 as bit)
 				                     ELSE CAST(0 as bit)
                                   END AS [IsReadOnly]
 	                        FROM INFORMATION_SCHEMA.COLUMNS as col

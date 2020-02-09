@@ -52,7 +52,7 @@ namespace Rest4GP.SqlServer
         public async Task<FetchEntitiesResponse> FetchEntitiesAsync(RestParameters parameters)
         {   
             // Base query
-            var sql = $"SELECT {string.Join(", ", GetColumnNames())} FROM {GetViewName()}";
+            var sql = $"SELECT {string.Join(", ", GetColumnNames())} FROM {GetDbOjectName()}";
             
             // Query for count
             string countSql = null;
@@ -161,7 +161,7 @@ namespace Rest4GP.SqlServer
         /// Gets the name of the view
         /// </summary>
         /// <returns>View name</returns>
-        private string GetViewName()
+        protected string GetDbOjectName()
         {
             return $"[{Options.Schema}].[{EntityMetadata.Name}]";
         }
