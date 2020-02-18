@@ -181,7 +181,7 @@ namespace Rest4GP.SqlServer
 	                        ) AS [Fields]
 
                    FROM INFORMATION_SCHEMA.TABLES as tbl
-                        JOIN sysobjects as tblSysObj ON (tblSysObj.[name] = tbl.TABLE_NAME)
+                        JOIN sysobjects as tblSysObj ON (tblSysObj.[name] = tbl.TABLE_NAME AND OBJECT_SCHEMA_NAME(tblSysObj.[id]) = tbl.TABLE_SCHEMA)
                         LEFT OUTER JOIN sys.extended_properties tblProp ON (tblProp.major_id = tblSysObj.id AND tblProp.minor_id = 0 AND tblProp.name = 'MS_Description')
                    WHERE tbl.TABLE_SCHEMA  = @schema AND 
                          (tblSysObj.[TYPE] = 'U' OR tblSysObj.[TYPE] = 'V')
