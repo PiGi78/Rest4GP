@@ -13,11 +13,12 @@ namespace Rest4GP.SqlServer
         /// <summary>
         /// Creates a new instance of SqlRestHandler
         /// </summary>
+        /// <param name="root">Root of the request to handle</param>
         /// <param name="sqlOptions">Sql options</param>
         /// <param name="memoryCache">Memory cache implementation</param>
         /// <param name="options">Data option</param>
-        public SqlRestHandler(SqlDataOptions sqlOptions, IMemoryCache memoryCache, DataRequestOptions options) 
-            : base(new SqlDataContext(sqlOptions), memoryCache, options)
+        public SqlRestHandler(string root, SqlDataOptions sqlOptions, IMemoryCache memoryCache, DataRequestOptions options) 
+            : base(root, new SqlDataContext(sqlOptions), memoryCache, options)
         {
         }
     }

@@ -1,4 +1,3 @@
-using Rest4GP.Core.Data;
 
 namespace Rest4GP.SqlServer
 {

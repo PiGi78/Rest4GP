@@ -4,6 +4,8 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using System.Diagnostics;
 
 namespace Rest4GP.Core
 {
@@ -126,11 +128,63 @@ namespace Rest4GP.Core
         /// The chek is made on path: the last one has to be $metadata
         /// </remarks>
         /// <returns>True if the caller is asking for metadata only</returns>
-        public bool IsMetadataRequested() 
+        public bool IsMetadata() 
         {
             return Paths.Last().Equals("$metadata", StringComparison.InvariantCultureIgnoreCase);
         }
 
+
+        /// <summary>
+        /// Root of the request
+        /// </summary>
+        public string Root
+        {
+            get
+            {
+                return GetValueFromRoute("root");
+            }
+        }
+
+
+        /// <summary>
+        /// Entity of the request
+        /// </summary>
+        public string EntityName
+        {
+            get
+            {
+                return GetValueFromRoute("entity");
+            }
+        }
+
+
+        /// <summary>
+        /// Extract a value from the route path
+        /// </summary>
+        /// <param name="key">Key of the data</param>
+        /// <returns>Value of the data or empty string if not found</returns>
+        private string GetValueFromRoute(string key)
+        {
+            if (string.IsNullOrEmpty(key)) throw new ArgumentNullException(nameof(key));
+
+            var result = string.Empty;
+            var route = OriginalRequest.HttpContext.GetRouteData();
+            Debug.WriteLine($"Routedata: {route?.ToString()}");
+            if (route != null &&
+                route.Values.TryGetValue(key, out var value) &&
+                value != null)
+            {
+                var strValue = value.ToString();
+                Debug.WriteLine($"Key: {key} - Value: {strValue}");
+                // exclude metadata value
+                if (strValue.Equals("$metadata", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    strValue = string.Empty;
+                }
+                result = strValue;
+            }
+            return result;
+        }
 
 #endregion
 

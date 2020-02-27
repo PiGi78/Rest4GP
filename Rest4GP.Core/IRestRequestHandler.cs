@@ -8,6 +8,11 @@ namespace Rest4GP.Core
     public interface IRestRequestHandler
     {
 
+        /// <summary>
+        /// HTTP of the root to handle
+        /// </summary>
+        string HandleRoot { get; set; }
+
 
         /// <summary>
         /// True if the handler can manage the request

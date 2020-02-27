@@ -1,5 +1,3 @@
-using System.Reflection.Emit;
-using System.Reflection.PortableExecutable;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +7,6 @@ using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
 using Rest4GP.Core.Data.Entities;
-using System.Collections;
 using Rest4GP.Core.Parameters;
 
 namespace Rest4GP.Core.Data
@@ -29,11 +26,14 @@ namespace Rest4GP.Core.Data
         /// <summary>
         /// Creates a new instance of DataRequestHandler
         /// </summary>
+        /// <param name="root">Root of the request to handle</param>
         /// <param name="dataContext">Data context</param>
         /// <param name="memoryCache">Cache</param>
         /// <param name="options">Options of the data request</param>
-        public DataRequestHandler(IDataContext dataContext, IMemoryCache memoryCache, DataRequestOptions options)
+        public DataRequestHandler(string root, IDataContext dataContext, IMemoryCache memoryCache, DataRequestOptions options)
         {
+            if (string.IsNullOrEmpty(root)) throw new ArgumentNullException(nameof(root));
+            HandleRoot = root;
             DataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
             Cache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             Options = options ?? new DataRequestOptions();
@@ -93,8 +93,11 @@ namespace Rest4GP.Core.Data
         {
             if (request == null) throw new ArgumentNullException(nameof(request));
 
+            // Check for the root
+            if (!request.Root.Equals(HandleRoot, StringComparison.InvariantCultureIgnoreCase)) return false;
+
             // If metada, then true
-            if (request.IsMetadataRequested()) return true;
+            if (request.IsMetadata()) return true;
 
             // Load entity manager
             var entityManager = await GetEntityManagerForRequestAsync(request);
@@ -102,6 +105,12 @@ namespace Rest4GP.Core.Data
             // We can handle the request only if we have an entity manager
             return entityManager != null;
         }
+
+
+        /// <summary>
+        /// HTTP of the root to handle
+        /// </summary>
+        public string HandleRoot { get; set; }
 
 
         /// <summary>
@@ -118,7 +127,7 @@ namespace Rest4GP.Core.Data
             if (manager == null) 
             {
                 // If no manager, could be the metadata of all managers
-                if (request.IsMetadataRequested())
+                if (request.IsMetadata())
                 {
                     var metatada = (await GetCachedMetadataAsync()).Select(y => new {
                         Name = y.EntityMetadata.Name,
@@ -134,7 +143,7 @@ namespace Rest4GP.Core.Data
             }
 
             // If metadata request, returns it
-            if (request.IsMetadataRequested())
+            if (request.IsMetadata())
             {
                 return new RestResponse {
                     StatusCode = (int)HttpStatusCode.OK,
@@ -313,7 +322,7 @@ namespace Rest4GP.Core.Data
             if (request == null) throw new ArgumentNullException(nameof(request));
 
             // Entity name
-            var entityName = GetEntityNameForRequest(request);
+            var entityName = request.EntityName;
             if (string.IsNullOrEmpty(entityName)) return null;
 
             // Managers
@@ -347,24 +356,12 @@ namespace Rest4GP.Core.Data
 
 
         /// <summary>
-        /// Name of the requested entity
-        /// </summary>
-        /// <param name="request">Request</param>
-        /// <returns>Entity requested, null if not found</returns>
-        protected virtual string GetEntityNameForRequest(RestRequest request)
-        {
-            if (request == null) throw new ArgumentNullException(nameof(request));
-
-            return request.Paths.FirstOrDefault();
-        }
-
-        /// <summary>
         /// Load metadata using the cache
         /// </summary>
         /// <returns>List of all managed entities</returns>
         protected virtual async Task<List<IEntityManager>> GetCachedMetadataAsync()
         {
-            var cacheKey = $"RestDataRequest_Metadata_{DataContext.Name}";
+            var cacheKey = $"RestDataRequest_Metadata_{this.HandleRoot}";
             return await Cache.GetOrCreateAsync<List<IEntityManager>>(
                     cacheKey, 
                     entry => {

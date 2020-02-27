@@ -1,9 +1,7 @@
-using System;
 using System.Data.Common;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Rest4GP.Core.Data;
 using Rest4GP.Core.Data.Entities;
 using System.Text.Json;
@@ -21,28 +19,15 @@ namespace Rest4GP.SqlServer
         #region Constructors
 
 
-        /// <summary>
-        /// Creates a new instance of SqlDataContext
-        /// </summary>
-        /// <param name="options">Options</param>
-        public SqlDataContext(SqlDataOptions options = null) 
-            : this("SqlServer", options)
-        {
-        }
 
 
         /// <summary>
         /// Creates a new instance of SqlDataContext
         /// </summary>
-        /// <param name="name">Name of the context</param>
         /// <param name="options">Options</param>
-        public SqlDataContext(string name, SqlDataOptions options = null)
+        public SqlDataContext(SqlDataOptions options = null)
         {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException(nameof(name));
-
             Options = options ?? new SqlDataOptions();
-            Name = name;
-
         }
 
 

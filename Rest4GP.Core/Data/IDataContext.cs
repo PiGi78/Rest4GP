@@ -10,11 +10,6 @@ namespace Rest4GP.Core.Data
     public interface IDataContext
     {
 
-        /// <summary>
-        /// Name of the data context
-        /// </summary>
-        string Name { get; }
-
 
         /// <summary>
         /// List of all entity managers

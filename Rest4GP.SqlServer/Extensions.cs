@@ -1,17 +1,8 @@
-using System.Text;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Rest4GP.Core;
-using Rest4GP.Core.Parameters;
-using Newtonsoft.Json;
-using System.Data.SqlClient;
 using Rest4GP.Core.Data;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Options;
 
 namespace Rest4GP.SqlServer
 {
@@ -25,18 +16,24 @@ namespace Rest4GP.SqlServer
         /// <summary>
         /// Adds a Sql Server data handler
         /// </summary>
+        /// <param name="root">Root of the request to handle</param>
         /// <param name="services">Services where to add the handler</param>
         /// <param name="options">Sql options</param>
         /// <returns>Services with the handler</returns>
-        public static IServiceCollection AddSqlDataHandler(this IServiceCollection services, Action<SqlDataOptions> options)
+        public static IServiceCollection AddSqlDataHandler(this IServiceCollection services, string root, Action<SqlDataOptions> options)
         {
+            if (string.IsNullOrEmpty(root)) throw new ArgumentNullException(nameof(root));
+
+            // Add handler
             var opt = new SqlDataOptions();
             options.Invoke(opt);
-            services.AddScoped<IRestRequestHandler>(x => {
+            services.AddTransient<IRestRequestHandler>(x => {
                 var mem = x.GetRequiredService<IMemoryCache>();
                 var dataOpt = x.GetRequiredService<DataRequestOptions>();
-                return new SqlRestHandler(opt, mem, dataOpt);
+                return new SqlRestHandler(root, opt, mem, dataOpt);
             });
+
+            // Returns the service collection
             return services;
         }
 

@@ -1,42 +1,32 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Rest4GP.Core.Parameters;
 
 namespace Rest4GP.Core
 {
 
     /// <summary>
-    /// Middleware for rest api
+    /// Route middleware for rest api
     /// </summary>
-    public class RestMiddleware
+    public class RestRouteMiddleware
     {
         
 
         /// <summary>
-        /// Creates a new instance of <see cref="RestMiddleware"/>
+        /// Creates a new instance of <see cref="RestRouteMiddleware"/>
         /// </summary>
-        /// <param name="next"><see cref="RequestDelegate"/> that follows the middleware in the pipeline</param>
         /// <param name="logger">Logger</param>
-        public RestMiddleware(RequestDelegate next, ILogger<RestMiddleware> logger)
+        public RestRouteMiddleware(ILogger<RestRouteMiddleware> logger)
         {
-            Next = next ?? throw new ArgumentNullException(nameof(next));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         /// <summary>
-        /// Request delegate that follow this on the pipeline
-        /// </summary>
-        protected RequestDelegate Next { get; }
-
-
-        /// <summary>
         /// Logger
         /// </summary>
-        private ILogger<RestMiddleware> Logger { get; }
+        private ILogger<RestRouteMiddleware> Logger { get; }
 
 
         /// <summary>
@@ -82,7 +72,6 @@ namespace Rest4GP.Core
                 }
                 
             }
-            await Next(context);
         }
 
 
