@@ -89,7 +89,10 @@ namespace Rest4GP.SqlServer
                 {
                     command.CommandText = DESCRIBE_SCHEMA_QUERY;
                     command.Parameters.Add(new SqlParameter("@schema", Options.Schema));
-                    var jsonContent = (string)(await command.ExecuteScalarAsync());
+                    // Removed the Async operator for performance issue
+                    // (a DB with 1000 tables takes 20 sec with Async, 4 sec without async)
+                    //var jsonContent = (string)(await command.ExecuteScalarAsync());
+                    var jsonContent = (string)(command.ExecuteScalar());
                     var jsonOptions = new JsonSerializerOptions();
                     jsonOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
                     result = JsonSerializer.Deserialize<List<EntityMetadata>>(jsonContent, jsonOptions);
