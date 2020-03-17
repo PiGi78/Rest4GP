@@ -20,7 +20,7 @@ namespace Rest4GP.SqlServer
         /// <param name="services">Services where to add the handler</param>
         /// <param name="options">Sql options</param>
         /// <returns>Services with the handler</returns>
-        public static IServiceCollection AddSqlDataHandler(this IServiceCollection services, string root, Action<SqlDataOptions> options)
+        public static IServiceCollection AddSql4GP(this IServiceCollection services, string root, Action<SqlDataOptions> options)
         {
             if (string.IsNullOrEmpty(root)) throw new ArgumentNullException(nameof(root));
 
