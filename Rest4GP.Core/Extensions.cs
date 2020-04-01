@@ -20,7 +20,7 @@ namespace Rest4GP.Core
         /// <param name="app"><see cref="IApplicationBuilder"/> where to append the REST handler</param>
         /// <param name="mainRoot">Main root for the Rest4GP service. If not given, only the main root of the handler will be used</param>
         /// <returns><see cref="IApplicationBuilder"/> with the given handler</returns>
-        public static IApplicationBuilder UseRest4G(this IApplicationBuilder app, string mainRoot = "")
+        public static IApplicationBuilder UseRest4GP(this IApplicationBuilder app, string mainRoot = "")
         {
             // Check params
             if (app == null) throw new ArgumentNullException(nameof(app));
