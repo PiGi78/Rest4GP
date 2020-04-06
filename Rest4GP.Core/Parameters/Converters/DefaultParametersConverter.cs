@@ -2,6 +2,7 @@ using System.Linq;
 using System.Web;
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Rest4GP.Core.Parameters.Converters
 {
@@ -52,12 +53,12 @@ namespace Rest4GP.Core.Parameters.Converters
                             if (!string.IsNullOrEmpty(jsonSort))
                             {
                                 result.Sort = new RestSort();
-                                result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort);
+                                result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort, GetJsonSerializerOptions());
                             }
                             break;
                         case "FILTER":
                             var filterValue = query[key];
-                            result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue);
+                            result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue, GetJsonSerializerOptions());
                             break;
                         case "SMARTFILTER":
                             result.SmartFilter = new RestSmartFilter(query[key]);
@@ -67,6 +68,29 @@ namespace Rest4GP.Core.Parameters.Converters
                     }
                 }
             }
+
+            return result;
+        }
+
+
+
+        /// <summary>
+        /// Gets the options for the Json serialization
+        /// </summary>
+        /// <returns>
+        /// Options for the Json serialization
+        /// </returns>
+        protected JsonSerializerOptions GetJsonSerializerOptions() 
+        {
+            var result = new JsonSerializerOptions 
+            {
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+            };
+
+            // Enums as string
+            result.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            
 
             return result;
         }
