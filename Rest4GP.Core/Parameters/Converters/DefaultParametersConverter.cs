@@ -1,8 +1,12 @@
 using System.Linq;
 using System.Web;
 using System.Collections.Generic;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+
+// Newtonsoft because System.Text.Json does not deserialize
+// object as instance of an object but as instance of JsonElement
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 
 namespace Rest4GP.Core.Parameters.Converters
 {
@@ -53,12 +57,12 @@ namespace Rest4GP.Core.Parameters.Converters
                             if (!string.IsNullOrEmpty(jsonSort))
                             {
                                 result.Sort = new RestSort();
-                                result.Sort.Fields = JsonSerializer.Deserialize<List<RestSortField>>(jsonSort, GetJsonSerializerOptions());
+                                result.Sort.Fields = JsonConvert.DeserializeObject<List<RestSortField>>(jsonSort, GetJsonConverterSettings());
                             }
                             break;
                         case "FILTER":
                             var filterValue = query[key];
-                            result.Filter = JsonSerializer.Deserialize<RestFilter>(filterValue, GetJsonSerializerOptions());
+                            result.Filter = JsonConvert.DeserializeObject<RestFilter>(filterValue, GetJsonConverterSettings());
                             break;
                         case "SMARTFILTER":
                             result.SmartFilter = new RestSmartFilter(query[key]);
@@ -73,26 +77,19 @@ namespace Rest4GP.Core.Parameters.Converters
         }
 
 
-
         /// <summary>
-        /// Gets the options for the Json serialization
+        /// Setting for JSON.NET deserialization
         /// </summary>
-        /// <returns>
-        /// Options for the Json serialization
-        /// </returns>
-        protected JsonSerializerOptions GetJsonSerializerOptions() 
+        /// <returns></returns>
+        private JsonConverter[] GetJsonConverterSettings()
         {
-            var result = new JsonSerializerOptions 
-            {
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
+            var result = new List<JsonConverter>();
 
-            // Enums as string
-            result.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-            
+            result.Add(new StringEnumConverter {
+                NamingStrategy = new CamelCaseNamingStrategy()
+            });
 
-            return result;
+            return result.ToArray();
         }
     }
 }
