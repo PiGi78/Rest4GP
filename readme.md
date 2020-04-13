@@ -113,7 +113,7 @@ When you need to sort data, you simply need to add the "sort" query parameter.
 It's value is the JSON format of the RestSort object that describe an array with field and direction.
 
 For example, if you need to order a table by the "column1" field descending, your URL will be like
-<http://localhost/sql/myTable?sort=[{"field": "column1", "direction": "descending"}]>
+http://localhost/sql/myTable?sort=[{"field": "column1", "direction": "descending"}]
 
 
 ### Filtering
@@ -133,4 +133,4 @@ If you want to filter a customer by its name and surname (John Doe), the filter 
 
 
 Putting it into the full query:
-<http://localhost/sql/Customers?filter={"filters":[{"field":"CUSTOMER_NAME","operator":"eq","value": "John"}, {"field":"CUSTOMER_SURNAME","operator":"eq","value": "Doe"}],"logic":"and"}>
+http://localhost/sql/Customers?filter={"filters":[{"field":"CUSTOMER_NAME","operator":"eq","value": "John"}, {"field":"CUSTOMER_SURNAME","operator":"eq","value": "Doe"}],"logic":"and"}
