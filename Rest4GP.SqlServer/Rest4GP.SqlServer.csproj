@@ -9,7 +9,7 @@
     <Description>Library that implements Rest4GP handler working with SqlServer database</Description>
     <PackageProjectUrl>https://github.com/PiGi78/Rest4GP</PackageProjectUrl>
     <PackageIcon>4gp.png</PackageIcon>
-    <PackageTags>REST API SqlService</PackageTags>
+    <PackageTags>REST API SqlServer</PackageTags>
     <Copyright>Copyright ©2020 4GP</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <NeutralLanguage>en</NeutralLanguage>
