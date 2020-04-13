@@ -134,3 +134,15 @@ If you want to filter a customer by its name and surname (John Doe), the filter 
 
 Putting it into the full query:
 http://localhost/sql/Customers?filter={"filters":[{"field":"CUSTOMER_NAME","operator":"eq","value": "John"}, {"field":"CUSTOMER_SURNAME","operator":"eq","value": "Doe"}],"logic":"and"}
+
+
+### Smart filter
+
+Since many applications use smart filter, the library has it's smart filter included.
+For use it, you can simply set the "smartFilter" query param.
+It is a string, but is managed in this way:
+- Any string field is matched with the "contains" operation and with case insensitive
+- If you set a number, it will check for that number in any number colum (+ any string that contains that number)
+- If you set a data, it will check for date/time value in any date/time column (+ any string that contains that date)
+- If you set two numbers separated by a minus (es: 10 - 20), it will check for numbers between that two values
+- If you set two date separated by a minus (es: 10/05/2020 - 12/06/2020), it will check for date between that two values
