@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rest4GP.Core", "Rest4GP.Cor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rest4GP.SqlServer", "Rest4GP.SqlServer\Rest4GP.SqlServer.csproj", "{9B055460-E560-46A9-BF02-D3DC1C0650D6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rest4GP.Microfocus", "Rest4GP.Microfocus\Rest4GP.Microfocus.csproj", "{040C0C5E-3E6C-4659-8D3D-48E40F50C019}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +46,17 @@ Global
 		{9B055460-E560-46A9-BF02-D3DC1C0650D6}.Release|x64.Build.0 = Release|Any CPU
 		{9B055460-E560-46A9-BF02-D3DC1C0650D6}.Release|x86.ActiveCfg = Release|Any CPU
 		{9B055460-E560-46A9-BF02-D3DC1C0650D6}.Release|x86.Build.0 = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|x64.Build.0 = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Debug|x86.Build.0 = Debug|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|Any CPU.Build.0 = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|x64.ActiveCfg = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|x64.Build.0 = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|x86.ActiveCfg = Release|Any CPU
+		{040C0C5E-3E6C-4659-8D3D-48E40F50C019}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
