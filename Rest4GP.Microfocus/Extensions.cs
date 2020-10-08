@@ -124,16 +124,14 @@ namespace Rest4GP.Microfocus
                 string.IsNullOrEmpty(fieldDefinition.Name)) return null;
             
             var nameChars = fieldDefinition.Name.ToCharArray();
-            var result = new char[] {};
-            int position = 0;
+            var result = new List<char>();
             bool upperCase = true;
             foreach (var c in nameChars)
             {
                 if (char.IsLetterOrDigit(c))
                 {
-                    result[position] = upperCase ? char.ToUpperInvariant(c) : char.ToLowerInvariant(c);
+                    result.Add(upperCase ? char.ToUpperInvariant(c) : char.ToLowerInvariant(c));
                     upperCase = false;
-                    position++;
                 } 
                 else
                 {
@@ -142,7 +140,7 @@ namespace Rest4GP.Microfocus
             }
 
 
-            return new string(result);
+            return new string(result.ToArray());
         }
 
 
