@@ -62,7 +62,7 @@ namespace Rest4GP.Microfocus
             using (var file = FileSystem.GetVisionFile(FileDefinition.FileName))
             {
                 var record = file.GetNewRecord();
-                var keyResult = LoadPrimaryKey(record, fields);
+                var keyResult = FillPrimaryKey(record, fields);
 
                 if (keyResult.Count > 0) return Task.FromResult(keyResult);
 
@@ -79,11 +79,11 @@ namespace Rest4GP.Microfocus
         }
 
         /// <summary>
-        /// Loads the primary key of the file
+        /// Fill the primary key of the file
         /// </summary>
         /// <param name="record">Record to fill</param>
         /// <param name="fields">Fiels from where take the values</param>
-        private IList<ValidationResult> LoadPrimaryKey(IVisionRecord record, IDictionary<string, object> fields)
+        private IList<ValidationResult> FillPrimaryKey(IVisionRecord record, IDictionary<string, object> fields)
         {
             if (record == null) throw new ArgumentNullException(nameof(record));
             if (fields == null) throw new ArgumentNullException(nameof(fields));
@@ -92,11 +92,11 @@ namespace Rest4GP.Microfocus
             var key = FileDefinition.Keys.First(x => x.IsUnique);
             foreach (var field in key.Fields)
             {
-                var name = field.Name;
+                var name = field.GetDotnetName();
                 if (fields.ContainsKey(name))
                 {
                     var fieldValue = fields[name];
-                    record.SetValue(name, fieldValue);
+                    record.SetValue(field.Name, fieldValue);
                 }
                 else
                 {
@@ -147,7 +147,7 @@ namespace Rest4GP.Microfocus
                         var dictElement = (IDictionary<string, object>)element;
                         foreach (var property in FileDefinition.Fields.Where(x => !x.IsGroupField))
                         {
-                            dictElement[property.Name] = record.GetValue(property.Name);
+                            dictElement[property.GetDotnetName()] = record.GetValue(property.Name);
                         }
                         result.Entities.Add(element);
 
@@ -177,7 +177,7 @@ namespace Rest4GP.Microfocus
                 var record = file.GetNewRecord();
 
                 // Load primary key
-                var keyResult = LoadPrimaryKey(record, fields);
+                var keyResult = FillPrimaryKey(record, fields);
                 if (keyResult.Count > 0) keyResult.ToIOException(FileDefinition.FileName);
 
 
@@ -191,12 +191,7 @@ namespace Rest4GP.Microfocus
                     throw new IOException($"Duplicate key on file {FileDefinition.FileName}");
                 }
 
-                // Load properties
-                foreach (var propertyName in fields.Keys)
-                {
-                    var propertyValue = fields[propertyName];
-                    record.SetValue(propertyName, propertyValue);
-                }
+                FillRecord(record, fields);
 
                 // Insert
                 file.Write(record);
@@ -222,7 +217,7 @@ namespace Rest4GP.Microfocus
                 var record = file.GetNewRecord();
 
                 // Load primary key
-                var keyResult = LoadPrimaryKey(record, fields);
+                var keyResult = FillPrimaryKey(record, fields);
                 if (keyResult.Count > 0) keyResult.ToIOException(FileDefinition.FileName);
 
 
@@ -236,12 +231,7 @@ namespace Rest4GP.Microfocus
                     throw new IOException($"Record not found on file {FileDefinition.FileName}");
                 }
 
-                // Load properties
-                foreach (var propertyName in fields.Keys)
-                {
-                    var propertyValue = fields[propertyName];
-                    record.SetValue(propertyName, propertyValue);
-                }
+                FillRecord(record, fields);
 
                 // Update
                 file.Rewrite(record);
@@ -251,6 +241,25 @@ namespace Rest4GP.Microfocus
 
             return Task.FromResult<IList<ValidationResult>>(null);
         }
+
+
+        private void FillRecord(IVisionRecord record, IDictionary<string, object> fields)
+        {
+            // Load properties
+            foreach (var propertyName in fields.Keys)
+            {
+                var propertyValue = fields[propertyName];
+                // look for the property with that name
+                var field = FileDefinition.Fields
+                                          .SingleOrDefault(x => x.GetDotnetName().Equals(propertyName, StringComparison.InvariantCultureIgnoreCase));
+                if (field != null)
+                {
+                    record.SetValue(field.Name, propertyValue);
+                }
+            }
+        }
+
+
     }
 
 }
