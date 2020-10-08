@@ -16,7 +16,7 @@ namespace Rest4GP.Microfocus
     /// <summary>
     /// Vision file entity manager
     /// </summary>
-    public class VisionFileEntityManager : IEntityManager
+    internal class VisionFileEntityManager : IEntityManager
     {
 
 
@@ -62,7 +62,7 @@ namespace Rest4GP.Microfocus
             using (var file = FileSystem.GetVisionFile(FileDefinition.FileName))
             {
                 var record = file.GetNewRecord();
-                var keyResult = loadPrimaryKey(record, fields);
+                var keyResult = LoadPrimaryKey(record, fields);
 
                 if (keyResult.Count > 0) return Task.FromResult(keyResult);
 
@@ -83,7 +83,7 @@ namespace Rest4GP.Microfocus
         /// </summary>
         /// <param name="record">Record to fill</param>
         /// <param name="fields">Fiels from where take the values</param>
-        private IList<ValidationResult> loadPrimaryKey(IVisionRecord record, IDictionary<string, object> fields)
+        private IList<ValidationResult> LoadPrimaryKey(IVisionRecord record, IDictionary<string, object> fields)
         {
             if (record == null) throw new ArgumentNullException(nameof(record));
             if (fields == null) throw new ArgumentNullException(nameof(fields));
@@ -145,7 +145,7 @@ namespace Rest4GP.Microfocus
                         // Add element
                         var element = new ExpandoObject();
                         var dictElement = (IDictionary<string, object>)element;
-                        foreach (var property in FileDefinition.Fields.Where(x => x.IsGroupField = false))
+                        foreach (var property in FileDefinition.Fields.Where(x => !x.IsGroupField))
                         {
                             dictElement[property.Name] = record.GetValue(property.Name);
                         }
@@ -177,7 +177,7 @@ namespace Rest4GP.Microfocus
                 var record = file.GetNewRecord();
 
                 // Load primary key
-                var keyResult = loadPrimaryKey(record, fields);
+                var keyResult = LoadPrimaryKey(record, fields);
                 if (keyResult.Count > 0) keyResult.ToIOException(FileDefinition.FileName);
 
 
@@ -222,7 +222,7 @@ namespace Rest4GP.Microfocus
                 var record = file.GetNewRecord();
 
                 // Load primary key
-                var keyResult = loadPrimaryKey(record, fields);
+                var keyResult = LoadPrimaryKey(record, fields);
                 if (keyResult.Count > 0) keyResult.ToIOException(FileDefinition.FileName);
 
 

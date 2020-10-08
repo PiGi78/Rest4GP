@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.2</Version>
+    <Version>1.0.8</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Rest library that works with Microfocus cobol</Title>
     <Description>Library that implements Rest4GP handler working with Microfocus Vision file system</Description>
@@ -17,14 +17,14 @@
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Rest4GP.Core\Rest4GP.Core.csproj"/>
+    <ProjectReference Include="..\Rest4GP.Core\Rest4GP.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0"/>
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0"/>
-    <PackageReference Include="Vision4GP.Core" Version="1.0.9"/>
+    <PackageReference Include="Microsoft.Extensions.Caching.Memory" Version="3.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="3.1.0" />
+    <PackageReference Include="Vision4GP.Core" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\4gp.png" Pack="true" PackagePath=""/>
+    <None Include="..\4gp.png" Pack="true" PackagePath="" />
   </ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ namespace Rest4GP.Microfocus
     /// <summary>
     /// Microfocus vision data context
     /// </summary>
-    public class VisionDataContext : IDataContext
+    internal class VisionDataContext : IDataContext
     {
 
         /// <summary>

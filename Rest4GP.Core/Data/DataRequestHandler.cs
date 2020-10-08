@@ -69,16 +69,24 @@ namespace Rest4GP.Core.Data
         /// </returns>
         protected JsonSerializerOptions GetJsonSerializerOptions() 
         {
-            var result = new JsonSerializerOptions 
+            var result = new JsonSerializerOptions();
+            if (Options.PropertyNameSerializationRule == PropertyNameSerializationRules.CamelCase)
             {
-                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                result.DictionaryKeyPolicy =  JsonNamingPolicy.CamelCase;
+                result.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             };
 
             // Check for enums
             if (Options.EnumSerializationRule == EnumSerializationRules.String)
             {
-                result.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                if (Options.PropertyNameSerializationRule == PropertyNameSerializationRules.CamelCase)
+                {
+                    result.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                }
+                else
+                {
+                    result.Converters.Add(new JsonStringEnumConverter());
+                }
             }
 
             return result;
@@ -263,7 +271,7 @@ namespace Rest4GP.Core.Data
             var doc = JsonDocument.Parse(content);
             var root = doc.RootElement;
             
-            var result = new Dictionary<string, object>();
+            var result = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
             foreach (var property in metadata.Fields)
             {
                 if (root.TryGetProperty(property.Name, out JsonElement element))

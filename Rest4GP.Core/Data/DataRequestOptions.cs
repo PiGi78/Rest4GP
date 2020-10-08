@@ -27,6 +27,13 @@ namespace Rest4GP.Core.Data
         /// Rule for enum serialization
         /// </summary>
         public EnumSerializationRules EnumSerializationRule { get; set; } = EnumSerializationRules.String;
+
+
+        /// <summary>
+        /// Rule for property name serialization
+        /// </summary>
+        /// <value></value>
+        public PropertyNameSerializationRules PropertyNameSerializationRule { get; set; } = PropertyNameSerializationRules.CamelCase;
         
     }
 
@@ -45,4 +52,22 @@ namespace Rest4GP.Core.Data
         /// </summary>
         Numeric
     }
+
+
+    /// <summary>
+    /// Rules for property name formatting
+    /// </summary>
+    public enum PropertyNameSerializationRules
+    {
+        /// <summary>
+        /// Change property in camel case format
+        /// </summary>
+        CamelCase,
+
+        /// <summary>
+        /// Does not change names
+        /// </summary>
+        InvariantName
+    }
+
 }
