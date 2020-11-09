@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.3</Version>
+    <Version>1.2.0</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Rest library that helps to develop a REST api server</Title>
     <Description>Core library for work with REST api</Description>

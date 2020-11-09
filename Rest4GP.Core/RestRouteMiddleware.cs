@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.Extensions.Logging;
 
 namespace Rest4GP.Core
@@ -38,6 +39,12 @@ namespace Rest4GP.Core
         public async Task InvokeAsync(HttpContext context, IEnumerable<IRestRequestHandler> requestHandlers)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
+
+            // If there is a controller, the moddleware won't work
+            var controllerActionDescriptor = context.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>();
+            if (controllerActionDescriptor != null &&
+                !string.IsNullOrEmpty(controllerActionDescriptor.ControllerName) &&
+                !string.IsNullOrEmpty(controllerActionDescriptor.ActionName)) return;
 
             // Wrap request into RestRequest
             var request = new RestRequest(context.Request);

@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>1.2.0</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Rest library that works with SqlServer</Title>
     <Description>Library that implements Rest4GP handler working with SqlServer database</Description>

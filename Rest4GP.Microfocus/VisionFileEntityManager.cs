@@ -116,12 +116,96 @@ namespace Rest4GP.Microfocus
         /// <returns>Entities that match the given parameters</returns>
         public Task<FetchEntitiesResponse> FetchEntitiesAsync(RestParameters parameters)
         {
+            // Check for sort
+            var hasSort = (parameters?.Sort?.Fields?.Any()).GetValueOrDefault(false);
+            if (hasSort)
+            {
+                return Task.FromResult(FetchEntitiesWithSort(parameters));
+            }
+
+            // Read for primary key
             var result = new FetchEntitiesResponse();
 
-            var recordCount = 0;
+            // Filter as function
+            var filterFunction = GetFunctionFilter(parameters);
+
+            // Take/Skip
             var take = (parameters?.Take).GetValueOrDefault();
             var skip = (parameters?.Skip).GetValueOrDefault();
 
+            // Record count
+            var recordCount = 0;
+
+            // Read file
+            using (var file = FileSystem.GetVisionFile(FileDefinition.FileName))
+            {
+                var records = new List<ExpandoObject>();
+
+                file.Open(FileOpenMode.Input);
+
+                if (file.Start())
+                {
+                    IVisionRecord record;
+                    while (true)
+                    {
+                        record = file.ReadNext();
+                        if (record == null) break;
+
+                        // Load data
+                        var element = GetExpandoObjectFromRecord(record);
+
+                        // Apply filter
+                        if (filterFunction == null || filterFunction(element))
+                        {
+                            // another record
+                            recordCount++;
+
+                            // Skip
+                            if (skip > 0 && recordCount <= skip) continue;
+
+                            // Take
+                            if (recordCount > skip &&
+                                take >= (recordCount - skip))
+                            {
+                                records.Add(element);
+                            }
+
+                            // Take
+                            if (!parameters.WithCount && take > 0 && take == (recordCount - skip)) break;
+
+                        }
+                    }
+                }
+                file.Close();
+
+                // Entities
+                result.Entities = new List<object>(records);
+                
+                // Total record count
+                if (parameters.WithCount)
+                {
+                    result.TotalCount = recordCount;
+                }
+            }
+
+            return Task.FromResult(result);
+        }
+
+
+        /// <summary>
+        /// Fetch entites when parameters has a sort
+        /// </summary>
+        /// <param name="parameters">Parameters of the REST function</param>
+        /// <returns>Response</returns>
+        private FetchEntitiesResponse FetchEntitiesWithSort(RestParameters parameters)
+        {
+            if (parameters == null) throw new ArgumentNullException(nameof(parameters));
+            if (parameters.Sort == null) throw new ApplicationException("FetchEntitiesWithSort called without a sort");
+            
+            var filterFunction = GetFunctionFilter(parameters);
+
+            // Read all records
+            var records = new List<ExpandoObject>();
             using (var file = FileSystem.GetVisionFile(FileDefinition.FileName))
             {
                 file.Open(FileOpenMode.Input);
@@ -134,34 +218,60 @@ namespace Rest4GP.Microfocus
                         record = file.ReadNext();
                         if (record == null) break;
 
+                        var element = GetExpandoObjectFromRecord(record);
 
-                        // TODO: Add filter management
-
-                        recordCount++;
-
-                        // Skip
-                        if (skip > 0 && recordCount <= skip) continue;
-                        
-                        // Add element
-                        var element = new ExpandoObject();
-                        var dictElement = (IDictionary<string, object>)element;
-                        foreach (var property in FileDefinition.Fields.Where(x => !x.IsGroupField))
+                        if (filterFunction == null || filterFunction(element))
                         {
-                            dictElement[property.GetDotnetName()] = record.GetValue(property.Name);
+                            records.Add(element);
                         }
-                        result.Entities.Add(element);
-
-                        // Take
-                        if (take > 0 && take == (recordCount - skip)) break;
                     }
                 }
 
                 file.Close();
             }
 
-            return Task.FromResult(result);
+            // Apply sort
+            var comparer = new ExpandoComparer(parameters.Sort);
+            records.Sort(comparer);
+
+            // Total count
+            var totalCount = parameters.WithCount ? records.Count : 0;
+
+
+            var elements = records.AsEnumerable();
+
+            // Skip
+            if (parameters.Skip > 0) elements = elements.Skip(parameters.Skip);
+
+            // Take
+            if (parameters.Take > 0) elements = elements.Take(parameters.Take);
+
+            // Result
+            return new FetchEntitiesResponse
+            {
+                TotalCount = totalCount,
+                Entities = new List<object>(elements)
+            };
         }
 
+
+        /// <summary>
+        /// Get an ExpandoObject from vision record
+        /// </summary>
+        /// <param name="record">Vision record to convert</param>
+        /// /// <returns>ExpandoObject with properties from record</returns>
+        private ExpandoObject GetExpandoObjectFromRecord(IVisionRecord record)
+        {
+            if (record == null) throw new ArgumentNullException(nameof(record));
+            
+            var result = new ExpandoObject();
+            var dictResult = (IDictionary<string, object>)result;
+            foreach (var property in FileDefinition.Fields.Where(x => !x.IsGroupField))
+            {
+                dictResult[property.GetDotnetName()] = record.GetValue(property.Name);
+            }
+            return result;
+        }
 
         /// <summary>
         /// Insert a new entity in the vision file
@@ -243,6 +353,11 @@ namespace Rest4GP.Microfocus
         }
 
 
+        /// <summary>
+        /// Fill a vision record from a given dictionary
+        /// </summary>
+        /// <param name="record">Record to fill</param>
+        /// <param name="fields">Dictionary with propery value</param>
         private void FillRecord(IVisionRecord record, IDictionary<string, object> fields)
         {
             // Load properties
@@ -260,6 +375,16 @@ namespace Rest4GP.Microfocus
         }
 
 
+        /// <summary>
+        /// Convert the filters in a function
+        /// </summary>
+        /// <param name="parameters">Filters to convert</param>
+        /// <returns>Function of filters</returns>
+        private Func<object, bool> GetFunctionFilter(RestParameters parameters)
+        {
+            var applier = new VisionFilterApplier(parameters, EntityMetadata.Fields);
+            return applier.GetFilterFunction();
+        }
     }
 
 }
