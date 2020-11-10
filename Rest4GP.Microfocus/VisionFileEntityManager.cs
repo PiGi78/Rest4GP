@@ -161,10 +161,10 @@ namespace Rest4GP.Microfocus
                             recordCount++;
 
                             // Skip
-                            if (skip > 0 && recordCount <= skip) continue;
+                            if (recordCount <= skip) continue;
 
                             // Take
-                            if (recordCount > skip &&
+                            if (take == 0 ||
                                 take >= (recordCount - skip))
                             {
                                 records.Add(element);

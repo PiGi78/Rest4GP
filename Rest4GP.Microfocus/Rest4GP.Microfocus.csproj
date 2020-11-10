@@ -3,7 +3,7 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
     <Authors>Gianni Piolanti</Authors>
     <Title>Rest library that works with Microfocus cobol</Title>
     <Description>Library that implements Rest4GP handler working with Microfocus Vision file system</Description>
