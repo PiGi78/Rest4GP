@@ -30,6 +30,7 @@ namespace Rest4GP.Core
         private ILogger<RestRouteMiddleware> Logger { get; }
 
 
+
         /// <summary>
         /// Invoke the current middleware
         /// </summary>
@@ -44,7 +45,11 @@ namespace Rest4GP.Core
             var controllerActionDescriptor = context.GetEndpoint()?.Metadata?.GetMetadata<ControllerActionDescriptor>();
             if (controllerActionDescriptor != null &&
                 !string.IsNullOrEmpty(controllerActionDescriptor.ControllerName) &&
-                !string.IsNullOrEmpty(controllerActionDescriptor.ActionName)) return;
+                !string.IsNullOrEmpty(controllerActionDescriptor.ActionName))
+            {
+                await context.Response.WriteAsync("Ciao!!!");
+                return;
+            }
 
             // Wrap request into RestRequest
             var request = new RestRequest(context.Request);
